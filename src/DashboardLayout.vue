@@ -1,5 +1,6 @@
 <template>
   <div class="bg-light vh-100 d-flex">
+    <BackgroundLogo />
     <div id="sidebar" class="bg-dark text-white active">
       <div class="sidebar-header text-center px-2 py-5">
         <h1 class="text-warning mb-0">satoripop</h1>
@@ -16,7 +17,7 @@
     </div>
     <div class="right w-100">
       <nav
-        class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-3"
+        class="navbar navbar-expand-sm navbar-light bg-white border-bottom py-3"
       >
         <!-- <a class="navbar-brand" href="#">Navbar</a> -->
         <button id="sidebar-toggler">
@@ -84,7 +85,13 @@
 </template>
 
 <script>
-export default {};
+export default {
+  components: {
+    BackgroundLogo: () => {
+      return import("./components/BackgroundLogo");
+    },
+  },
+};
 window.onload = () => {
   const sidebarToggler = document.getElementById("sidebar-toggler");
   var sidebar = document.getElementById("sidebar");

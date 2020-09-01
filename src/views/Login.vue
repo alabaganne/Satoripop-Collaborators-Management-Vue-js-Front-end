@@ -2,11 +2,9 @@
   <div
     class="vh-100 d-flex bg-warning justify-content-center align-items-center"
   >
-    <div
-      class="d-flex justify-content-center bg-white shadow p-0"
-      style="min-width: 400px; max-width: 880px;"
-    >
-      <div class="col-6 text-light left d-none d-lg-block">
+    <BackgroundLogo />
+    <div class="row shadow p-0 container" style="max-width: 825px">
+      <div class="col-6 text-light left d-none d-md-block">
         <div class="d-flex h-100 justify-content-center align-items-center">
           <div class="text-center p-5">
             <h1 class="display-4 text-warning">
@@ -16,7 +14,7 @@
           </div>
         </div>
       </div>
-      <div class="col-12 col-lg-6 bg-light text-dark p-5">
+      <div class="col-12 col-md-6 bg-light text-dark p-5">
         <h1 class="display-4 font-weight-normal mb-5">Login</h1>
         <form
           autocomplete="off"
@@ -57,6 +55,11 @@
 <script>
 import Form from "../core/Form";
 export default {
+  components: {
+    BackgroundLogo: () => {
+      return import("../components/BackgroundLogo");
+    },
+  },
   data() {
     return {
       form: new Form({
@@ -89,5 +92,8 @@ a {
     url("../assets/1.jpg");
   background-position: center;
   background-size: cover;
+}
+input.form-control-lg {
+  font-size: 14pt;
 }
 </style>
