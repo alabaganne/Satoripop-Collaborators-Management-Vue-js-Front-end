@@ -30,7 +30,7 @@ const routes = [
   {
     path: "/dashboard",
     component: () => {
-      return import("../layouts/MainTemplate.vue");
+      return import("../DashboardLayout.vue");
     },
     children: [
       {
