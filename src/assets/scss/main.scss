@@ -1,0 +1,36 @@
+$theme_colors: (
+  "warning": #fce525,
+  "dark": #2e2e2e,
+);
+
+@import "node_modules/bootstrap/scss/bootstrap";
+
+.text-white-75 {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+::placeholder,
+label,
+button,
+nav,
+#sidebar {
+  font-family: "Comfortaa", sans-serif;
+}
+:focus::placeholder {
+  color: transparent;
+}
+.form-control:focus {
+  border-color: rgba(0, 0, 0, 0.6);
+  box-shadow: none;
+}
+.navbar-light .navbar-nav .nav-link {
+  color: #2e2e2e;
+  padding: 8px;
+  transition: 0.3s;
+}
