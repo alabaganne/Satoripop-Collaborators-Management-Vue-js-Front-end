@@ -11,7 +11,12 @@ img {
   position: absolute;
   bottom: 0;
   right: 0;
-  height: 50%;
+  height: 65%;
   opacity: 0.075;
+}
+@media screen and (max-width: 850px) {
+  img {
+    display: none;
+  }
 }
 </style>

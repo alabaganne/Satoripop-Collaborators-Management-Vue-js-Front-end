@@ -15,8 +15,9 @@ h3,
 h4,
 h5,
 h6,
-::placeholder,
 label,
+input,
+textarea,
 button,
 nav,
 #sidebar {
@@ -38,4 +39,8 @@ nav,
   display: flex;
   justify-items: center;
   align-items: center;
+}
+.was-validated .form-control:invalid,
+.form-control.is-invalid {
+  background-image: none;
 }

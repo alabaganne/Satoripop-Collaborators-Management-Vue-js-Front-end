@@ -16,7 +16,7 @@ export default class Form {
     let data = {};
 
     for (let field in this.originalData) {
-      this[field] = this[this.originalData];
+      data[field] = this[field];
     }
 
     return data;
@@ -37,8 +37,8 @@ export default class Form {
           resolve(response.data);
         })
         .catch((errors) => {
-          this.errors.record(errors.response.data);
-          reject(errors.response.data);
+          this.errors.record(errors.response.data.errors);
+          reject(errors.response);
         });
     });
   }
