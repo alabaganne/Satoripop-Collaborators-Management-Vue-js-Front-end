@@ -6,14 +6,16 @@ export default {
     user: null,
     token: null,
   },
+
   getters: {
     authenticated(state) {
-      return state.token !== null;
+      return state.token !== null; // returns true if the user is logged in
     },
     user(state) {
       return state.user;
     },
   },
+
   mutations: {
     SET_TOKEN(state, token) {
       state.token = token;
@@ -22,19 +24,15 @@ export default {
       state.user = data;
     },
   },
+
   actions: {
-    attempt({ commit, state }, token) {
-      if (token) {
-        commit("SET_TOKEN", token);
+    attempt({ commit }, token) {
+      if (!token) {
+        return; // there's no point of sending a token to retrieve the user info if token is null
       }
-
-      if (!state.token) {
-        return; // * there's no point of sending a token to get users info if there's no token passed to attempt
-      }
-
-      return new Promise((resolve, reject) => {
-        // this time resolve takes an error or null
-        axios // !
+      commit("SET_TOKEN", token);
+      return new Promise((resolve) => {
+        axios
           .get("/auth/me", {
             headers: {
               Authorization: "Bearer " + token,
@@ -43,23 +41,22 @@ export default {
           .then((response) => {
             commit("SET_USER", response.data);
             axios.defaults.headers["Authorization"] = `Bearer ${token}`;
-            resolve(response);
+            resolve(null); // ? Resolve with null
           })
-          .catch((error) => {
-            if (error.response.status === 401) {
-              // * Invalid token
+          .catch((err) => {
+            if (err.response.status === 401) {
+              commit("SET_TOKEN", null);
               localStorage.removeItem("token");
             }
-            reject(error);
+            resolve(err); // ! Resolve with error
           });
       });
     },
-    logout({ commit }) {
-      commit("SET_TOKEN", null);
-      commit("SET_USER", null);
 
-      return new Promise((resolve) => {
-        resolve();
+    logout({ commit }) {
+      return axios.post("/api/auth/logout").then(() => {
+        commit("SET_TOKEN", null);
+        commit("SET_USER", null);
       });
     },
   },

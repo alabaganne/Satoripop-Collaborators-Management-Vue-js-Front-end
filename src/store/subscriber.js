@@ -13,7 +13,6 @@ store.subscribe((mutation) => {
         axios.defaults.headers["Authorization"] = null;
         localStorage.removeItem("token");
       }
-
       break;
     }
   }

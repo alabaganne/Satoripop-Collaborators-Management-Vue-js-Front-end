@@ -11,7 +11,8 @@ img {
   position: absolute;
   bottom: 0;
   right: 0;
-  height: 65%;
+  height: 75%;
+  max-width: 50%;
   opacity: 0.075;
 }
 @media screen and (max-width: 850px) {

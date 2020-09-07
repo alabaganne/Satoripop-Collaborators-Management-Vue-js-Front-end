@@ -12,13 +12,17 @@ window.axios = axios;
 
 Vue.config.productionTip = false;
 
-new Vue({
-  created() {
-    store.dispatch("auth/attempt", localStorage.getItem("token"));
-  }, // !
-  router,
-  store,
-  render: function(h) {
-    return h(App);
-  },
-}).$mount("#app");
+store
+  .dispatch("auth/attempt", localStorage.getItem("token"))
+  .then(function(err) {
+    if (err) {
+      console.log(err);
+    }
+    new Vue({
+      router,
+      store,
+      render: function(h) {
+        return h(App);
+      },
+    }).$mount("#app");
+  });

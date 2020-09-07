@@ -6,6 +6,8 @@ Vue.use(VueRouter);
 
 import store from "@/store";
 
+const storeInit = store.dispatch("auth/attempt", localStorage.getItem("token"));
+
 const routes = [
   {
     path: "/",
@@ -15,7 +17,7 @@ const routes = [
   {
     path: "/login",
     name: "login",
-    beforeRouteEnter: (to, from, next) => {
+    beforeEnter: (to, from, next) => {
       if (!store.getters["auth/authenticated"]) {
         next();
       } else {

@@ -1,5 +1,7 @@
 <template>
-  <div class="vh-100 d-flex bg-warning justify-content-center align-items-center">
+  <div
+    class="vh-100 d-flex bg-warning justify-content-center align-items-center"
+  >
     <BackgroundLogo />
     <div class="row shadow p-0 container" id="loginContainer">
       <div class="col-6 text-light left d-none d-md-block">
@@ -11,11 +13,16 @@
         </div>
       </div>
       <div class="col-12 col-md-6 bg-white text-dark p-5">
-        <h1 class="display-4 font-weight-normal mb-5 text-center text-md-left">Login</h1>
+        <h1 class="display-4 font-weight-normal mb-5 text-center text-md-left">
+          Login
+        </h1>
         <form
           autocomplete="off"
-          @submit.prevent="onSubmit()"
-          @keydown="form.errors.clear($event.target.name); disabledSubmitButton = false;"
+          @submit.prevent="submit()"
+          @keydown="
+            form.errors.clear($event.target.name);
+            disabledSubmitButton = false;
+          "
         >
           <div class="form-group">
             <label for="email" class="text-muted">Email Address</label>
@@ -23,14 +30,13 @@
               type="text"
               name="email"
               class="form-control form-control-lg rounded-0 bg-light"
-              :class="{ 'is-invalid' : form.errors.has('email') }"
+              :class="{ 'is-invalid': form.errors.has('email') }"
               placeholder="johndoe@example.com"
               v-model="form.email"
             />
-            <p
-              class="text-danger my-0"
-              v-if="form.errors.has('email')"
-            >{{ form.errors.get('email') }}</p>
+            <p class="text-danger my-0" v-if="form.errors.has('email')">
+              {{ form.errors.get("email") }}
+            </p>
           </div>
           <div class="form-group">
             <label for="password" class="text-muted">Password</label>
@@ -38,23 +44,28 @@
               type="password"
               name="password"
               class="form-control form-control-lg rounded-0 bg-light"
-              :class="{ 'is-invalid' : form.errors.has('password') }"
+              :class="{ 'is-invalid': form.errors.has('password') }"
               v-model="form.password"
             />
-            <p
-              class="text-danger my-0"
-              v-if="form.errors.has('password')"
-            >{{ form.errors.get('password') }}</p>
+            <p class="text-danger my-0" v-if="form.errors.has('password')">
+              {{ form.errors.get("password") }}
+            </p>
           </div>
-          <a href="#" class="d-block text-right small text-muted mb-1">Forget Password?</a>
+          <a href="#" class="d-block text-right small text-muted mb-1"
+            >Forget Password?</a
+          >
           <button
             class="btn btn-block btn-lg btn-dark rounded-0"
             :disabled="form.errors.any() || this.disabledSubmitButton"
-          >Submit</button>
+          >
+            Submit
+          </button>
           <p
             class="alert alert-danger mt-2 mb-0 rounded-0 text-center text-md-left"
             v-if="invalidCredentialsError"
-          >The provided credentials are incorrect.</p>
+          >
+            The provided credentials are incorrect.
+          </p>
         </form>
       </div>
     </div>
@@ -84,7 +95,7 @@ export default {
     ...mapActions({
       attempt: "auth/attempt",
     }),
-    onSubmit() {
+    submit() {
       this.invalidCredentialsError = false;
       this.form
         .post("/auth/login")

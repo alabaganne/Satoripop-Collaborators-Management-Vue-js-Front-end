@@ -5,7 +5,9 @@
         <img src="./assets/logo.svg" height="50px" alt />
         satoripop
       </a>
-      <button id="sidebar-toggler" class="border p-2" @click="toggleSidebar">sidebar</button>
+      <button id="sidebar-toggler" class="border p-2" @click="toggleSidebar">
+        sidebar
+      </button>
       <button
         class="navbar-toggler"
         type="button"
@@ -32,7 +34,8 @@
               data-toggle="dropdown"
               aria-haspopup="true"
               aria-expanded="false"
-            >{{ user ? user.name : "John Doe" }}</a>
+              >{{ user ? user.name : "John Doe" }}</a
+            >
             <div
               class="dropdown-menu rounded-0 small"
               aria-labelledby="navbarDropdown"
@@ -43,7 +46,7 @@
                 Account
               </a>
               <div class="dropdown-divider"></div>
-              <button class="dropdown-item" @click="onLogout">
+              <button class="dropdown-item" @click="logout">
                 <!-- <i class="fas fa-sign-out-alt fa-lg mr-2"></i> -->
                 Logout
               </button>
@@ -57,7 +60,7 @@
       <div
         id="sidebar"
         class="bg-dark text-white shadow border-right border-secondary"
-        :class="{ 'active': sidebarActive }"
+        :class="{ active: sidebarActive }"
       >
         <div class="sidebar-links">
           <a href="#">Collaborators</a>
@@ -91,6 +94,11 @@ export default {
       sidebarActive: true,
     };
   },
+  created() {
+    if (window.innerWidth < 750) {
+      this.sidebarActive = false;
+    }
+  },
   computed: {
     ...mapGetters({
       authenticated: "auth/authenticated",
@@ -102,10 +110,10 @@ export default {
       this.sidebarActive = !this.sidebarActive;
     },
     ...mapActions({
-      logout: "auth/logout",
+      logoutAction: "auth/logout",
     }),
-    onLogout() {
-      this.logout().then(() => {
+    logout() {
+      this.logoutAction().then(() => {
         this.$router.replace({
           name: "login",
         });
