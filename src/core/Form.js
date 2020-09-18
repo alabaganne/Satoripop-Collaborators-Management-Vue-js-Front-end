@@ -22,22 +22,26 @@ export default class Form {
     return data;
   }
 
-  post(url, headerOptions = {}) {
-    return this.submit("post", url, headerOptions);
+  clear() {
+    for(let field in this.originalData) {
+      this[field] = '';
+    }
   }
 
-  submit(requestType, url, headerOptions) {
-    let parameters =
-      requestType === "get" || requestType === "delete"
-        ? headerOptions
-        : this.data();
+  post(url) {
+    return this.submit("post", url);
+  }
+
+  submit(requestType, url) {
     return new Promise((resolve, reject) => {
-      axios[requestType](url, parameters, headerOptions)
+      axios[requestType](url, this.data())
         .then((response) => {
           resolve(response.data);
         })
         .catch((errors) => {
-          this.errors.record(errors.response.data.errors);
+          if (errors.response.data.errors) {
+            this.errors.record(errors.response.data.errors);
+          }
           reject(errors.response);
         });
     });

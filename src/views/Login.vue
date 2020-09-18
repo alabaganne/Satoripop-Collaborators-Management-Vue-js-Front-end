@@ -1,9 +1,6 @@
 <template>
-  <div
-    class="vh-100 d-flex bg-warning justify-content-center align-items-center"
-  >
-    <BackgroundLogo />
-    <div class="row shadow p-0 container" id="loginContainer">
+  <div class="vh-100 d-flex bg-warning justify-content-center align-items-center">
+    <div class="row p-0 container" id="loginContainer">
       <div class="col-6 text-light left d-none d-md-block">
         <div class="d-flex h-100 justify-content-center align-items-center">
           <div class="text-center p-4">
@@ -13,9 +10,7 @@
         </div>
       </div>
       <div class="col-12 col-md-6 bg-white text-dark p-5">
-        <h1 class="display-4 font-weight-normal mb-5 text-center text-md-left">
-          Login
-        </h1>
+        <h1 class="display-4 font-weight-normal mb-5 text-center text-md-left">Login</h1>
         <form
           autocomplete="off"
           @submit.prevent="submit()"
@@ -25,7 +20,7 @@
           "
         >
           <div class="form-group">
-            <label for="email" class="text-muted">Email Address</label>
+            <label for="email">Email Address</label>
             <input
               type="text"
               name="email"
@@ -34,12 +29,13 @@
               placeholder="johndoe@example.com"
               v-model="form.email"
             />
-            <p class="text-danger my-0" v-if="form.errors.has('email')">
-              {{ form.errors.get("email") }}
-            </p>
+            <small
+              class="text-danger my-0"
+              v-if="form.errors.has('email')"
+            >{{ form.errors.get("email") }}</small>
           </div>
           <div class="form-group">
-            <label for="password" class="text-muted">Password</label>
+            <label for="password">Password</label>
             <input
               type="password"
               name="password"
@@ -47,25 +43,20 @@
               :class="{ 'is-invalid': form.errors.has('password') }"
               v-model="form.password"
             />
-            <p class="text-danger my-0" v-if="form.errors.has('password')">
-              {{ form.errors.get("password") }}
-            </p>
+            <small
+              class="text-danger my-0"
+              v-if="form.errors.has('password')"
+            >{{ form.errors.get("password") }}</small>
           </div>
-          <a href="#" class="d-block text-right small text-muted mb-1"
-            >Forget Password?</a
-          >
+          <a href="#" class="d-block text-right small text-muted mb-1 comfortaa">Forget Password?</a>
           <button
             class="btn btn-block btn-lg btn-dark rounded-0"
             :disabled="form.errors.any() || this.disabledSubmitButton"
-          >
-            Submit
-          </button>
+          >Submit</button>
           <p
-            class="alert alert-danger mt-2 mb-0 rounded-0 text-center text-md-left"
+            class="alert alert-danger mt-2 mb-0 text-center text-md-left"
             v-if="invalidCredentialsError"
-          >
-            The provided credentials are incorrect.
-          </p>
+          >The provided credentials are incorrect.</p>
         </form>
       </div>
     </div>
@@ -76,11 +67,6 @@
 import Form from "../core/Form";
 import { mapActions } from "vuex";
 export default {
-  components: {
-    BackgroundLogo: () => {
-      return import("../components/BackgroundLogo");
-    },
-  },
   data() {
     return {
       form: new Form({
@@ -123,9 +109,6 @@ export default {
 </script>
 
 <style>
-a {
-  font-family: "Comfortaa", "Roboto", sans-serif;
-}
 .left {
   background-image: linear-gradient(rgba(0, 0, 0, 0.9) 0 100%),
     url("../assets/1.jpg");

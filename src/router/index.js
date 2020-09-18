@@ -1,27 +1,28 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
+// import Home from "../views/Home.vue";
 
 Vue.use(VueRouter);
 
 import store from "@/store";
 
-const storeInit = store.dispatch("auth/attempt", localStorage.getItem("token"));
-
 const routes = [
   {
     path: "/",
-    name: "home",
-    component: Home,
+    redirect: {
+      name: "login",
+    },
+    // name: "home",
+    // component: Home,
   },
   {
     path: "/login",
     name: "login",
     beforeEnter: (to, from, next) => {
-      if (!store.getters["auth/authenticated"]) {
+      if (!store.getters["auth/isAuthenticated"]) {
         next();
       } else {
-        next({ name: "dashboard" }); // !
+        next({ name: "dashboard" });
       }
     },
     component: () => {
@@ -31,10 +32,10 @@ const routes = [
   {
     path: "/dashboard",
     component: () => {
-      return import("../DashboardLayout.vue");
+      return import("../Layout.vue");
     },
     beforeEnter: (to, from, next) => {
-      if (store.getters["auth/authenticated"]) {
+      if (store.getters["auth/isAuthenticated"]) {
         next();
       } else {
         next({ name: "login" });
@@ -48,6 +49,27 @@ const routes = [
           return import("../views/Dashboard.vue");
         },
       },
+      {
+        path: "collaborators",
+        name: "collaborators",
+        component: () => {
+          return import("../views/Collaborators/index.vue");
+        }
+      },
+      {
+        path: "collaborators/create",
+        name: "add collaborator",
+        component: () => {
+          return import("../views/Collaborators/create.vue");
+        }
+      },
+      {
+        path: "settings",
+        name: "settings",
+        component: () => {
+          return import("@/views/User/settings.vue");
+        }
+      }
     ],
   },
 ];
