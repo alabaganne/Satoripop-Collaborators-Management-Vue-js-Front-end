@@ -19,16 +19,16 @@
                 </div>
                 <div class="form-group">
                     <label class="required" for="">Email address</label>
-                    <input type="email" class="form-control" name="email" placeholder="johndoe@example.com" v-model="user.email" :class="{ 'is-invalid': form.errors.has('email') }">
+                    <input type="email" class="form-control" name="email" placeholder="johndoe@example.com" v-model="form.email" :class="{ 'is-invalid': form.errors.has('email') }">
                     <small class="text-danger mt-1" v-if="form.errors.has('email')" v-text="form.errors.get('email')"></small>
                 </div>
                 <div class="form-group">
-                    <label class="required" for="">Password</label>
+                    <label for="">New password</label>
                     <input type="password" class="form-control" name="password" v-model="form.password" :class="{ 'is-invalid': form.errors.has('password') }">
                     <small class="text-danger mt-1" v-if="form.errors.has('password')" v-text="form.errors.get('password')"></small>
                 </div>
                 <div class="form-group">
-                    <label class="required" for="">Confirm password</label>
+                    <label for="">Password confirmation</label>
                     <input type="password" class="form-control" name="password_confirmation" v-model="form.password_confirmation" :class="{ 'is-invalid': form.errors.has('password') }">
                 </div>
                 <button class="btn btn-dark rounded-pill mt-4 btn-block btn-sm py-3 border-0">Submit</button>
@@ -54,14 +54,14 @@ export default {
                 email: '',
                 password: '',
                 password_confirmation: '',
-            })
+            }),
         }
     },
     mounted() {
-        this.form.id = this.user.id;
-        this.form.name = this.user.name;
-        this.form.username = this.user.username || '';
-        this.form.email = this.user.email;
+        this.form.id = this.user.data.id;
+        this.form.name = this.user.data.name;
+        this.form.username = this.user.data.username || '';
+        this.form.email = this.user.data.email;
     },
     methods: {
         ...mapActions({
@@ -69,9 +69,9 @@ export default {
         }),
         onSubmit() {
             this.form.post('/account/update').then(() => {
-                this.user.name = this.form.name;
-                this.user.username = this.form.username;
-                this.user.email = this.form.email;
+                this.user.data.name = this.form.name;
+                this.user.data.username = this.form.username;
+                this.user.data.email = this.form.email;
                 this.$router.replace('/dashboard');
             }).catch(error => {
                 console.log(error);
@@ -80,7 +80,3 @@ export default {
     }
 }
 </script>
-
-<style>
-
-</style>

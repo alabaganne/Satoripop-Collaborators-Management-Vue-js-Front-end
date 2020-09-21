@@ -30,7 +30,7 @@
                         <div class="modal-footer">
                             <div class="ml-auto">
                                 <button type="button" class="btn rounded-sm btn-sm px-3 py-2 mr-1 btn-dark" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn rounded-sm btn-sm px-3 py-2 btn-primary" @click="validateAndAdd" :disabled="form.errors.any()">Add</button>
+                                <button type="button" class="btn rounded-sm btn-sm px-3 py-2 btn-primary" @click="validateThenAdd" :disabled="form.errors.any()">Add</button>
                             </div>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                         </td>
                     </tr>
                     <tr class="bg-light" v-for="(row, index) in pendingData" :key="index">
-                        <td v-for="(field, index) in fields" :key="index">{{ row[field.toLowerCase()] }}</td>
+                        <td v-for="(field, index) in fields" :key="index">{{ row[field] }}</td>
                         <td>
                             <button class="btn btn-sm btn-outline-dark mr-1">Edit</button>
                             <button class="btn btn-sm btn-outline-danger" @click="deleteFromArray(pendingData, index)">Delete</button>
@@ -81,6 +81,7 @@ export default {
         return {
             fetchedData: [],
             pendingData: [],
+            collaboratorId: null
         }
     },
     computed: {
@@ -91,8 +92,17 @@ export default {
             return keys;
         }
     },
+    mounted() {
+        this.collaboratorId = this.$route.params.id || null;
+        if(this.collaboratorId) {
+            axios.get(`/collaborators/${this.collaboratorId}/${this.name}s`).then(response => {
+                this.fetchedData = response.data;
+            })
+        }
+        // fetch data if a user id is present on the URL
+    },
     methods: {
-        validateAndAdd() {
+        validateThenAdd() {
             this.form.post(`/validate/${this.name}`).then(() => {
                 this.pendingData.push(this.form.data());
                 this.form.clear();
@@ -103,27 +113,18 @@ export default {
             });
         },
         submit(collaboratorId) {
-            for(let row in this.pendingData) {
-                axios.post(`/collaborators/${collaboratorId}/${name}s`, row).catch(error => {
+            for(let row in this.pendingData) { // send requests to add pendingData to the collaborator
+                axios.post(`/collaborators/${collaboratorId}/${this.name}s`, this.pendingData[row]).catch(error => {
                     console.error(error);
                 });
+                // ! send requests to update and delete data from table
             }
         },
-        deleteFromArray(table, index) {
+        deleteFromArray(table, index) { // pending data array
             table.splice(index, 1);
         },
-        // deleteFromDatabase(table, index) {
-            
-        // }
+        // deleteFromDatabase(table, index) {}
     },
-    filters: {
-        clean: (value) => {
-            if(!value) return '';
-            value = value.toString() && value.replace('_', ' ');
-
-            return value.charAt(0).toUpperCase() + value.slice(1);
-        }
-    }
 }
 </script>
 

@@ -21,11 +21,19 @@ Chart.defaults.global.maintainAspectRatio = false;
 // * Re-authenticate the user if a valid token is present on the Local Storage
 const token = localStorage.getItem('token');
 Vue.config.productionTip = false;
+
+Vue.filter('clean', (value) => {
+  if(!value) return '';
+  value = value.toString() && value.replace('_', ' ');
+
+  return value.charAt(0).toUpperCase() + value.slice(1);
+})
+
 store.dispatch('auth/attempt', token).catch(error => {
   if(error.response.status === 401) {
     console.error('AUTH ERROR ON "main.js"');
   } else {
-    console.error(error);
+    console.error(error.response);
   }
 }).finally(() => {
   new Vue({

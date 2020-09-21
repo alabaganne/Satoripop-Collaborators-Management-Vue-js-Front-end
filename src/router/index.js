@@ -25,15 +25,11 @@ const routes = [
         next({ name: "dashboard" });
       }
     },
-    component: () => {
-      return import("../views/Login.vue");
-    },
+    component: () => {  return import("../views/Login.vue") },
   },
   {
     path: "/dashboard",
-    component: () => {
-      return import("../Layout.vue");
-    },
+    component: () => { return import("../Layout.vue") },
     beforeEnter: (to, from, next) => {
       if (store.getters["auth/isAuthenticated"]) {
         next();
@@ -45,30 +41,32 @@ const routes = [
       {
         path: "",
         name: "dashboard",
-        component: () => {
-          return import("../views/Dashboard.vue");
-        },
+        component: () => { return import("../views/Dashboard.vue") },
       },
       {
         path: "collaborators",
         name: "collaborators",
-        component: () => {
-          return import("../views/Collaborators/index.vue");
-        }
+        component: () => {  return import("@/views/Collaborators/index.vue") }
       },
       {
         path: "collaborators/create",
         name: "add collaborator",
-        component: () => {
-          return import("../views/Collaborators/create.vue");
-        }
+        component: () => { return import("@/views/Collaborators/create.vue") }
+      },
+      {
+        path: "collaborators/:id/edit",
+        name: "edit collaborator",
+        component: () => { return import("@/views/Collaborators/edit.vue") }
       },
       {
         path: "settings",
         name: "settings",
-        component: () => {
-          return import("@/views/User/settings.vue");
-        }
+        component: () => { return import("@/views/User/settings.vue") }
+      },
+      {
+        path: "collaborators/:id/profile",
+        name: "profile",
+        component: () => { return import("@/views/Collaborators/show.vue") }
       }
     ],
   },

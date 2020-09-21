@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="grid-container">
-      <div class="grid">
+    <div class="grid-container mb-2">
+      <div class="grid pt-0">
         <div class="p-4 bg-white shadow-sm h-100 rounded-lg">
           <!-- Pie Chart here -->
           <div class="position-relative">
-            <pieChart 
+            <pie-chart 
               :height="250" 
               :title="'Distribution of employees by gender'" 
               :labels="['Male', 'Female']" 
@@ -14,20 +14,20 @@
           </div>
         </div>
       </div>
-      <div class="grid">
+      <div class="grid pt-0">
         <div class="p-4 bg-white shadow-sm h-100 rounded-lg">
           <!-- Horizontal Bar Chart here -->
           <div class="w-100 position-relative">
-            <horizontalBarChart 
+            <horizontal-bar-chart 
               :height="250" 
-              :title="'Number of employees per role'"
+              :title="'Number of employees per department'"
               :labels="['Commercials', 'Project managers', 'Developpers', 'Designers']" 
               :chartData="[5, 15, 35, 25]"
             />
           </div>
         </div>
       </div>
-      <div class="grid">
+      <div class="grid pt-0">
         <div
           class="p-5 bg-dark shadow-sm h-100 rounded-lg d-flex align-items-center text-center"
           style="background-image: linear-gradient(to right, #434343 0%, #2e2e2e 100%);"
@@ -56,7 +56,7 @@
               <th scope="row" v-text="collaborator.id"></th>
               <td v-text="collaborator.name"></td>
               <td v-text="collaborator.department.name">Mobile</td>
-              <td v-text="collaborator.contract_start_date">December 16, 2020</td>
+              <td v-text="collaborator.hiring_date">December 16, 2020</td>
             </tr>
           </tbody>
         </table>
@@ -66,23 +66,33 @@
 </template>
 
 <script>
-import pieChart from '../components/charts/PieChart'
-import horizontalBarChart from '../components/charts/HorizontalBarChart'
-import collaboratorMixin from '../mixins/collaboratorMixin'
+import { mapGetters } from 'vuex';
+import axios from 'axios';
+import collaboratorMixin from '@/mixins/collaboratorMixin';
+
 export default {
   mixins: [collaboratorMixin],
   components: {
-    pieChart,
-    horizontalBarChart,
+    'pie-chart': () => { return import('@/components/charts/PieChart') },
+    'horizontal-bar-chart': () => { return import('@/components/charts/HorizontalBarChart') },
   },
   data() {
     return {
-      collaborators: []
+      collaborators: [],
+      departments: [],
     }
+  },
+  computed: {
+    ...mapGetters({
+      user: 'auth/user'
+    })
   },
   mounted() {
     this.fetchCollaborators(6).then(response => {
       this.collaborators = response.data.data
+    });
+    axios.get('/departments').then(response => {
+      console.log(response);
     })
   }
 };

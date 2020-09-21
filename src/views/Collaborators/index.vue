@@ -1,5 +1,5 @@
 <template>
-    <div class="p-2">
+    <div>
         <div class="bg-white shadow-sm rounded-lg w-100 p-4">
             <div class="d-md-flex mb-2 small text-secondary">
                 <router-link :to="{ name: 'add collaborator' }" class="btn clickable mr-auto font-weight-bold">
@@ -21,27 +21,27 @@
                     </div>
                 </form>
             </div>
-            <div class="grid-container grid-container-sm mb-2">
+            <div class="grid-container grid-container-sm mb-4">
                 <!-- display fetched collaborators -->
-                <div class="grid h-100" v-for="collaborator in collaborators" :key="collaborator.id">
+                <router-link class="grid h-100" v-for="collaborator in collaborators" :key="collaborator.id" :to="{ name: 'profile', params: { id: collaborator.id } }">
                     <collaboratorCard
                         class="h-100"
                         :name="collaborator.name"
                         :department="collaborator.department.name"
                         :photoSrc="'me.jpg'"
                     />
-                </div>
+                </router-link>
             </div>
             <div class="d-flex justify-content-center">
                 <div>
                     <button 
-                        class="btn btn btn-primary mr-1 rounded-pill" 
+                        class="btn btn-sm btn-outline-dark rounded-pill" 
                         v-on:click="previousPage" 
                         :disabled="currentPage === 1"
                     >previous</button>
-                    <button class="btn btn btn-outline-primary mr-1 px-3 rounded-pill" disabled>{{ currentPage }}</button>
+                    <button class="btn btn-sm rounded-pill" disabled>{{ `${currentPage} of ${lastPage}` }}</button>
                     <button 
-                        class="btn btn btn-primary rounded-pill" 
+                        class="btn btn-sm btn-outline-dark rounded-pill" 
                         v-on:click="nextPage" 
                         :disabled="currentPage >= lastPage"
                     >

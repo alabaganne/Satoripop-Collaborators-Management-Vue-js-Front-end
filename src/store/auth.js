@@ -3,7 +3,11 @@ import axios from "axios";
 export default {
   namespaced: true,
   state: {
-    user: null,
+    user: {
+      data: null,
+      role: null,
+      permissions: null
+    },
     token: null,
   },
 
@@ -20,8 +24,16 @@ export default {
     SET_TOKEN(state, token) {
       state.token = token;
     },
-    SET_USER(state, data) {
-      state.user = data;
+    SET_USER(state, response) {
+      if(!response) {
+        state.user.data = null;
+        state.user.role = null;
+        state.user.permissions = null;
+        return;
+      }
+      state.user.data = response.data;
+      state.user.role = response.role;
+      state.user.permissions = response.permissions;
     },
   },
 
