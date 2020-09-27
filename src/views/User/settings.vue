@@ -58,10 +58,10 @@ export default {
         }
     },
     mounted() {
-        this.form.id = this.user.data.id;
-        this.form.name = this.user.data.name;
-        this.form.username = this.user.data.username || '';
-        this.form.email = this.user.data.email;
+        this.form.id = this.user.id;
+        this.form.name = this.user.name;
+        this.form.username = this.user.username || '';
+        this.form.email = this.user.email;
     },
     methods: {
         ...mapActions({
@@ -69,9 +69,9 @@ export default {
         }),
         onSubmit() {
             this.form.post('/account/update').then(() => {
-                this.user.data.name = this.form.name;
-                this.user.data.username = this.form.username;
-                this.user.data.email = this.form.email;
+                this.user.name = this.form.name;
+                this.user.username = this.form.username;
+                this.user.email = this.form.email;
                 this.$router.replace('/dashboard');
             }).catch(error => {
                 console.log(error);

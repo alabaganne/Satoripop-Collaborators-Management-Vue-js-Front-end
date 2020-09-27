@@ -6,10 +6,10 @@
           <!-- Pie Chart here -->
           <div class="position-relative">
             <pie-chart 
+              v-if="statisticsReady"
               :height="250" 
               :title="'Distribution of employees by gender'" 
-              :labels="['Male', 'Female']" 
-              :chartData="[65, 35]" 
+              :chartData="collaboratorsByGender"
             />
           </div>
         </div>
@@ -19,6 +19,7 @@
           <!-- Horizontal Bar Chart here -->
           <div class="w-100 position-relative">
             <horizontal-bar-chart 
+              v-if="statisticsReady"
               :height="250" 
               :title="'Number of employees per department'"
               :labels="['Commercials', 'Project managers', 'Developpers', 'Designers']" 
@@ -55,7 +56,7 @@
             <tr v-for="collaborator in collaborators" :key="collaborator.id">
               <th scope="row" v-text="collaborator.id"></th>
               <td v-text="collaborator.name"></td>
-              <td v-text="collaborator.department.name">Mobile</td>
+              <td v-text="collaborator.department_name">Mobile</td>
               <td v-text="collaborator.hiring_date">December 16, 2020</td>
             </tr>
           </tbody>
@@ -80,6 +81,9 @@ export default {
     return {
       collaborators: [],
       departments: [],
+      collaboratorsByGender: {},
+      collaboratorsByDepartment: {},
+      statisticsReady: false
     }
   },
   computed: {
@@ -87,12 +91,21 @@ export default {
       user: 'auth/user'
     })
   },
-  mounted() {
+  created() {
     this.fetchCollaborators(6).then(response => {
-      this.collaborators = response.data.data
+      this.collaborators = response.data.data;
     });
-    axios.get('/departments').then(response => {
-      console.log(response);
+
+    const getCollaboratorsByGenderRequest = axios.get('/collaborators/gender');
+    const getCollaboratorsByDepartmentRequest = axios.get('/collaborators/gender');
+
+    axios.all([getCollaboratorsByGenderRequest, getCollaboratorsByDepartmentRequest]).then(axios.spread((...responses) => {
+      this.collaboratorsByGender = responses[0].data;
+      this.collaboratorsByDepartment = responses[1].data;
+    })).catch(errors => {
+      console.log(errors);
+    }).finally(() => {
+      this.statisticsReady = true;
     })
   }
 };

@@ -1,6 +1,6 @@
 <template>
   <div class="vh-100 d-flex bg-warning justify-content-center align-items-center">
-    <div class="row p-0 container" id="loginContainer">
+    <div class="row p-0 container shadow-sm" id="loginContainer">
       <div class="col-6 text-light left d-none d-md-block">
         <div class="d-flex h-100 justify-content-center align-items-center">
           <div class="text-center p-4">

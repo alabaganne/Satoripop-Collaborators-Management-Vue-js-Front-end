@@ -5,7 +5,7 @@
                 <router-link :to="{ name: 'add collaborator' }" class="btn clickable mr-auto font-weight-bold">
                     <i class="fas fa-plus fa-sm mr-2 text-primary"></i>Add new collaborator
                 </router-link>
-                <form class="pr-2" v-on:submit.prevent="findCollaboratorByName">
+                <form autocomplete="off" class="pr-2" v-on:submit.prevent="findCollaboratorByName">
                     <div class="input-group">
                         <input 
                             class="form-control bg-light"
@@ -27,7 +27,7 @@
                     <collaboratorCard
                         class="h-100"
                         :name="collaborator.name"
-                        :department="collaborator.department.name"
+                        :department="collaborator.department_name"
                         :photoSrc="'me.jpg'"
                     />
                 </router-link>
@@ -35,11 +35,11 @@
             <div class="d-flex justify-content-center">
                 <div>
                     <button 
-                        class="btn btn-sm btn-outline-dark rounded-pill" 
+                        class="btn btn-sm btn-outline-dark rounded-pill mr-2" 
                         v-on:click="previousPage" 
                         :disabled="currentPage === 1"
                     >previous</button>
-                    <button class="btn btn-sm rounded-pill" disabled>{{ `${currentPage} of ${lastPage}` }}</button>
+                    <button class="btn btn-sm mr-2" disabled>{{ `${currentPage} of ${lastPage}` }}</button>
                     <button 
                         class="btn btn-sm btn-outline-dark rounded-pill" 
                         v-on:click="nextPage" 
@@ -74,7 +74,8 @@ export default {
         getCollaborators() {
             this.fetchCollaborators(8, this.currentPage, this.searchInput).then(response => {
                 this.collaborators = response.data.data;
-                this.lastPage = response.data.last_page;
+                this.lastPage = response.data.meta.last_page;
+                console.log(response);
             });
         },
         previousPage() {

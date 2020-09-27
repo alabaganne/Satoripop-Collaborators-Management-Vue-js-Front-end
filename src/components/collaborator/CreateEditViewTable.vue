@@ -45,19 +45,19 @@
                 <th>Actions</th>
             </thead>
             <tbody>
-                <template v-if="fetchedData.length > 0 || pendingData.length > 0">
-                    <tr v-for="row in fetchedData" :key="row.id">
-                        <td v-for="(field, index) in fields" :key="index">{{ row[field] }}</td>
+                <template v-if="fetchedData.length > 0 || pendingData.length > 0"> <!-- Fetched Data -->
+                    <tr v-for="(row, rowIndex) in fetchedData" :key="row.id">
+                        <td v-for="(field, fieldIndex) in fields" :key="fieldIndex">{{ row[field] }}</td>
                         <td>
-                            <button class="btn btn-secondary">edit</button>
-                            <button class="btn btn-secondary">delete</button>
+                            <button type="button" class="btn btn-sm btn-secondary mr-1">Edit</button>
+                            <button type="button" class="btn btn-sm btn-danger" @click="deleteFromFetched(fetchedData, rowIndex)">Delete</button>
                         </td>
                     </tr>
-                    <tr class="bg-light" v-for="(row, index) in pendingData" :key="index">
-                        <td v-for="(field, index) in fields" :key="index">{{ row[field] }}</td>
+                    <tr class="bg-light" v-for="(row, rowIndex) in pendingData" :key="rowIndex"> <!-- Pending Data -->
+                        <td v-for="(field, fieldIndex) in fields" :key="fieldIndex">{{ row[field] }}</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-dark mr-1">Edit</button>
-                            <button class="btn btn-sm btn-outline-danger" @click="deleteFromArray(pendingData, index)">Delete</button>
+                            <button type="button" class="btn btn-sm btn-secondary mr-1">Edit</button>
+                            <button type="button" class="btn btn-sm btn-danger" @click="deleteFromPending(pendingData, index)">Delete</button>
                         </td>
                     </tr>
                 </template>
@@ -81,6 +81,8 @@ export default {
         return {
             fetchedData: [],
             pendingData: [],
+            pendingUpdates: [],
+            pendingDeletes: [], // contains the id of the elements that will be deleted
             collaboratorId: null
         }
     },
@@ -94,36 +96,46 @@ export default {
     },
     mounted() {
         this.collaboratorId = this.$route.params.id || null;
+        // fetch data if a user id is present on the URL
         if(this.collaboratorId) {
             axios.get(`/collaborators/${this.collaboratorId}/${this.name}s`).then(response => {
                 this.fetchedData = response.data;
             })
         }
-        // fetch data if a user id is present on the URL
     },
     methods: {
         validateThenAdd() {
             this.form.post(`/validate/${this.name}`).then(() => {
                 this.pendingData.push(this.form.data());
                 this.form.clear();
-            }).catch(error =>{
+            }).catch(error => {
                 if(error.status !== 422) {
                     console.error(error);
                 }
             });
         },
         submit(collaboratorId) {
-            for(let row in this.pendingData) { // send requests to add pendingData to the collaborator
+            // send requests to add pendingData Array Data to the collaborator
+            for(let row in this.pendingData) {
                 axios.post(`/collaborators/${collaboratorId}/${this.name}s`, this.pendingData[row]).catch(error => {
-                    console.error(error);
+                    console.error(error.response);
                 });
-                // ! send requests to update and delete data from table
+                // Send requests to update and delete data from table
+                // Delete
+                this.pendingDeletes.forEach(value => {
+                    axios.delete(`/collaborators/${this.collaboratorId}/${this.name}s/${value}`).catch(error => console.log(error));
+                });
             }
         },
-        deleteFromArray(table, index) { // pending data array
+        // editPending(table, index) {},
+        // editFetched(table, index) {},
+        deleteFromPending(table, index) { // table: pending data Array
             table.splice(index, 1);
         },
-        // deleteFromDatabase(table, index) {}
+        deleteFromFetched(table, index) { // table: fetched data Array
+            this.pendingDeletes.push(table[index].id);
+            table.splice(index, 1)
+        }
     },
 }
 </script>

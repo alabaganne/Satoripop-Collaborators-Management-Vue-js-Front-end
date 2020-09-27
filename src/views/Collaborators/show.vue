@@ -12,7 +12,7 @@
                         <img src="@/assets/me.jpg" class="rect rounded-circle shadow-sm mr-3" :alt="collaborator.name">
                         <div>
                             <h1 class="text-primary font-weight-light mb-1">{{ collaborator.name }}</h1>
-                            <h4 class="font-weight-light mb-1">{{ collaborator.department ? collaborator.department.name : '' }} Department</h4>
+                            <h4 class="font-weight-light mb-1">{{ collaborator.department_name }} Department</h4>
                             <h6 class="text-secondary mb-0">{{ collaborator.position }}</h6>    
                         </div>
                     </div>
@@ -120,15 +120,6 @@ export default {
                 console.log(error);
             });
         },
-        deleteCollaborator() {
-            if(confirm('Are you sure you want to delete this collaborator?')) {
-                axios.delete(`/collaborators/${this.collaborator.id}`).then(() => {
-                    this.$router.replace({ name: 'collaborators' });
-                }).catch(error => {
-                    console.log(error.response);
-                })
-            }
-        }
     }
 }
 </script>

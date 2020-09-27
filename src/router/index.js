@@ -67,6 +67,11 @@ const routes = [
         path: "collaborators/:id/profile",
         name: "profile",
         component: () => { return import("@/views/Collaborators/show.vue") }
+      },
+      {
+        path: "collaborators/archive",
+        name: "archive",
+        component: () => { return import("@/views/Collaborators/archive.vue") }
       }
     ],
   },

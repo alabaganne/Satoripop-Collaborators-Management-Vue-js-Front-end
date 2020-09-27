@@ -1,6 +1,6 @@
 <template>
     <!-- 2 Roles for this component: create & edit -->
-    <create-collaborator :role="create" />
+    <create-collaborator :role="'create'" />
 </template>
 
 <script>

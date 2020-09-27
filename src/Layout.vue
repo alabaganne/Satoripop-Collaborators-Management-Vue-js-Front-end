@@ -15,10 +15,10 @@
                 </ul>
             </div>
         </nav>
-        <div id="sidebar" class="bg-dark text-light" :class="{ 'active': sidebar.active }">
+        <div id="sidebar" class="bg-dark text-light mt-5" :class="{ 'active': sidebar.active }">
             <div class="sidebar-header d-flex flex-column align-items-center px-3 pt-5 pb-4">
                 <img src="@/assets/me.jpg" class="rect rounded-circle shadow mb-3" alt="Ala Baganné">
-                <h3 class="font-weight-light text-warning mb-0">{{ user.data.name }}</h3>
+                <h3 class="font-weight-light text-warning mb-0">{{ user.name }}</h3>
                 <h5 class="text-capitalize">{{ user.role }}</h5>
             </div>
             <div class="sidebar-links">
@@ -30,21 +30,22 @@
                     <div id="drop1" class="dropdown collapse show" data-parent="#accordion">
                         <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
                         <router-link :to="{ name: 'collaborators' }">Collaborators</router-link>
-                        <a href="#">Archive</a>
+                        <router-link :to="{ name: 'archive' }">Archive</router-link>
                     </div>
                     <a href="#">Recruitments</a>
-                    <a href="#">Leaves</a>
-                    <a href="#">Skills</a>
                     <a href="#">Tranings</a>
-                    <a href="#">Evaluations</a>
+                    <a href="#">Evaluations & Careers</a>
+                    <a href="#">Time & Activities</a>
                 </div>
             </div>
         </div>
-        <div id="main" class="mt-5 pt-5 px-4 pb-1 bg-light min-vh-100 d-flex flex-column" :class="{ 'push-right': sidebar.active }">
-            <router-view class="mt-2 mx-3 mb-auto" />
-            <footer class="mt-4 text-center">
-                <p>Designed and developped by <a href="#">Ala Baganné</a></p>
-            </footer>
+        <div class="bg-light min-vh-100 pt-5 px-4 pb-1 ">
+            <div id="main" class="pt-5 d-flex flex-column" :class="{ 'push-right': sidebar.active }">
+                <router-view class="mt-2 mx-3 mb-auto" />
+                <footer class="mt-4 text-center">
+                    <p>Designed and developped by <a href="#">Ala Baganné</a></p>
+                </footer>
+            </div>
         </div>
     </div>
 </template>
@@ -109,6 +110,7 @@ nav {
     height: 100%;
     background-image: linear-gradient(rgba(4,4,4,.9) 0 100%), url('assets/2.jpg');
     background-size: cover;
+    z-index: +1;
     .sidebar-header {
         border-bottom: 1px solid rgba(255,255,255,.4);
         background-color: rgba(0,0,0,.4);
@@ -130,9 +132,12 @@ nav {
         &[aria-expanded=false] i {
             transform: rotate(-90deg);
         }
+        &[aria-expanded=true], &.router-link-exact-active {
+            background-color: black;
+        }
     }
     .dropdown {
-        background-color: rgba(0,0,0,.8);
+        background-color: rgba(0,0,0,.6);
         a {
             color: rgba(255,255,255,.6);
             font-size: 10pt;
@@ -150,5 +155,16 @@ nav {
 }
 #main.push-right {
     margin-left: 320px;
+}
+@media (max-width: 991.98px) {
+    #main.push-right {
+        margin-left: 0;
+    }
+}
+@media (max-width: 575.98px) {
+    #sidebar {
+        width: 100%;
+        left: -100%;
+    }
 }
 </style>

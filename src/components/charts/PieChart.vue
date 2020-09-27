@@ -4,15 +4,18 @@
     export default {
         extends: Pie,
         props: {
-            labels: Array,
-            chartData: Array,
+            chartData: Object,
             title: String
         },
         mounted () {
+            let keys = Object.keys(this.chartData);
+            for(let index in keys) {
+                keys[index] = keys[index].charAt(0).toUpperCase() + keys[index].slice(1);
+            }
             this.renderChart({
-                labels: this.labels,
+                labels: keys,
                 datasets: [{
-                    data: this.chartData,
+                    data: Object.values(this.chartData),
                     backgroundColor: [
                         'rgba(255, 99, 132, 1)',
                         'rgba(54, 162, 235, 1)',

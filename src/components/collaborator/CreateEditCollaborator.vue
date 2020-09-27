@@ -3,12 +3,12 @@
         <div class="bg-white shadow-sm rounded-lg overflow-hidden">
             <div class="p-4 text-center bg-primary text-shadow">
                 <h1 class="text-light display-4 mb-0">
-                    <template v-if="mainForm.name === 'create'">Create collaborator</template>
+                    <template v-if="role === 'create'">Create collaborator</template>
                     <template v-else>Edit <span class="text-warning">{{ collaboratorName }}</span>'s informations</template>
                 </h1>
                 <h6 v-if="role === 'create'" class="text-warning lead font-weight-normal">Fill out the form below</h6>
             </div>
-            <form autocomplete="off" class="p-4" @submit.prevent="onSubmit()">
+            <form autocomplete="off" class="p-4" @submit.prevent="onSubmit()" @keydown="mainForm.errors.clear($event.target.name)">
                 <h3 class="p-2 mb-0">Contact</h3>
                 <div class="grid-container mb-4">
                     <div class="grid">
@@ -16,6 +16,7 @@
                         <input class="form-control" name="name" type="text" placeholder="John Doe" v-model="mainForm.name" :class="{ 'is-invalid': mainForm.errors.has('name') }">
                         <small class="text-danger" v-if="mainForm.errors.has('name')" v-text="mainForm.errors.get('name')"></small>
                     </div>
+                    <!-- everyone of those may be a component instead -->
                     <div class="grid">
                         <label class="required" for="#">Email address</label>
                         <input class="form-control" type="email" placeholder="johndoe@example.com" name="email" v-model="mainForm.email" :class="{ 'is-invalid': mainForm.errors.has('email') }">
@@ -56,8 +57,8 @@
                                         <h4>Personal Informations</h4>
                                         <div class="grid-container-sm">
                                             <div class="grid">
-                                                <label for="#">Date of birth <span>(dd-mm-yyyy)</span></label>
-                                                <input type="text" placeholder="dd-mm-yyyy" class="form-control" name="date_of_birth" v-model="mainForm.date_of_birth" :class="{ 'is-invalid': mainForm.errors.has('date_of_birth') }">
+                                                <label for="#">Date of birth <span>(yyyy-mm-dd)</span></label>
+                                                <input type="text" placeholder="yyyy-mm-dd" class="form-control" name="date_of_birth" v-model="mainForm.date_of_birth" :class="{ 'is-invalid': mainForm.errors.has('date_of_birth') }">
                                                 <small class="text-danger" v-if="mainForm.errors.has('date_of_birth')" v-text="mainForm.errors.get('date_of_birth')"></small>
                                             </div>
                                             <!-- may be a component -->
@@ -68,7 +69,7 @@
                                             </div>
                                             <div class="grid">
                                                 <label class="required" for="civil_status">Civil status</label>
-                                                <select class="custom-select" name="civil_status" id="civil_status" v-model="mainForm.civil_status" :class="{ 'is-invalid': mainForm.errors.has('civil_status') }">
+                                                <select class="custom-select" name="civil_status" id="civil_status" v-model="mainForm.civil_status" :class="{ 'is-invalid': mainForm.errors.has('civil_status') }" @change="mainForm.errors.clear('civil_status')">
                                                     <option selected value="">Select</option>
                                                     <option value="single">Single</option>
                                                     <option value="married">Married</option>
@@ -77,7 +78,7 @@
                                             </div>
                                             <div class="grid">
                                                 <label class="required" for="#">Gender</label>
-                                                <select class="custom-select" name="gender" v-model="mainForm.gender" :class="{ 'is-invalid': mainForm.errors.has('gender') }">
+                                                <select class="custom-select" name="gender" v-model="mainForm.gender" :class="{ 'is-invalid': mainForm.errors.has('gender') }" @change="mainForm.errors.clear('gender')">
                                                     <option selected value="">Select</option>
                                                     <option value="male">Male</option>
                                                     <option value="female">Female</option>
@@ -156,13 +157,13 @@
                                             <small class="text-danger" v-if="mainForm.errors.has('grade')" v-text="mainForm.errors.has('grade')"></small>
                                         </div>
                                         <div class="grid">
-                                            <label for="hiring_date">Hiring date <span>(dd-mm-yyyy)</span></label>
-                                            <input type="text" placeholder="dd-mm-yyyy" class="form-control" name="hiring_date" id="hiring_date" v-model="mainForm.hiring_date" :class="{ 'is-invalid': mainForm.errors.has('hiring_date') }">
+                                            <label for="hiring_date">Hiring date <span>(yyyy-mm-dd)</span></label>
+                                            <input type="text" placeholder="yyyy-mm-dd" class="form-control" name="hiring_date" id="hiring_date" v-model="mainForm.hiring_date" :class="{ 'is-invalid': mainForm.errors.has('hiring_date') }">
                                             <small class="text-danger" v-if="mainForm.errors.has('hiring_date')" v-text="mainForm.errors.get('hiring_date')"></small>
                                         </div>
                                         <div class="grid">
-                                            <label for="contract_end_date">Contract end date <span>(dd-mm-yyyy)</span></label>
-                                            <input type="text" placeholder="dd-mm-yyyy" class="form-control" name="contract_end_date" id="contract_end_date" v-model="mainForm.contract_end_date" :class="{ 'is-invalid': mainForm.errors.has('contract_start_date') }">
+                                            <label for="contract_end_date">Contract end date <span>(yyyy-mm-dd)</span></label>
+                                            <input type="text" placeholder="yyyy-mm-dd" class="form-control" name="contract_end_date" id="contract_end_date" v-model="mainForm.contract_end_date" :class="{ 'is-invalid': mainForm.errors.has('contract_start_date') }">
                                             <small class="text-danger" v-if="mainForm.errors.has('contract_start_date')" v-text="mainForm.errors.get('contract_start_date')"></small>
                                         </div>
                                         <div class="grid">
@@ -224,8 +225,8 @@
                                                 <small class="text-danger" v-if="newTrainingForm.errors.has('entitled')">{{ newTrainingForm.errors.get('entitled') }}</small>
                                             </div>
                                             <div class="form-group">
-                                                <label for="">Start date <span>(dd-mm-yyyy)</span></label>
-                                                <input type="text" placeholder="dd-mm-yyyy" name="start_date" class="form-control" :class="{ 'is-invalid': newTrainingForm.errors.has('start_date') }" v-model="newTrainingForm.start_date">
+                                                <label for="">Start date <span>(yyyy-mm-dd)</span></label>
+                                                <input type="text" placeholder="yyyy-mm-dd" name="start_date" class="form-control" :class="{ 'is-invalid': newTrainingForm.errors.has('start_date') }" v-model="newTrainingForm.start_date">
                                                 <small class="text-danger" v-if="newTrainingForm.errors.has('start_date')">{{ newTrainingForm.errors.get('start_date') }}</small>
                                             </div>
                                             <div class="form-group">
@@ -260,8 +261,8 @@
                                                 <small class="text-danger" v-if="newEvaluationForm.errors.has('manager')">{{ newEvaluationForm.errors.get('manager') }}</small>
                                             </div>
                                             <div class="form-group">
-                                                <label for="">Date <span>(dd-mm-yyyy)</span></label>
-                                                <input type="text" placeholder="dd-mm-yyyy" name="date" class="form-control" :class="{ 'is-invalid': newEvaluationForm.errors.has('date') }" v-model="newEvaluationForm.date">
+                                                <label for="">Date <span>(yyyy-mm-dd)</span></label>
+                                                <input type="text" placeholder="yyyy-mm-dd" name="date" class="form-control" :class="{ 'is-invalid': newEvaluationForm.errors.has('date') }" v-model="newEvaluationForm.date">
                                                 <small class="text-danger" v-if="newEvaluationForm.errors.has('date')">{{ newEvaluationForm.errors.get('date') }}</small>
                                             </div>
                                             <div class="form-group">
@@ -280,8 +281,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="d-flex mt-5">
-                    <button class="mx-auto btn btn-sm px-5 py-3 btn-success rounded-pill shadow-sm">Save collaborator</button>
+                <div class="d-flex justify-content-center mt-5">
+                    <button type="submit" class="btn btn-sm btn-success px-4 py-3 rounded-pill" :class="{ 'mr-1': role === 'edit' }">{{ role === 'edit' ? 'Update' : 'Save' }} Collaborator</button>
+                    <button v-if="role === 'edit'" type="button" class="btn btn-sm btn-danger px-4 py-3 rounded-pill" @click="deleteCollaborator">Delete Collaborator</button>
                 </div>
             </form>
         </div>
@@ -329,7 +331,7 @@ export default {
                 name: null,
                 username: null,
                 email: null,
-                password: null,
+                password: '',
                 phone_number: null,
                 date_of_birth: null,
                 address: null,
@@ -365,6 +367,9 @@ export default {
         if(this.collaboratorId) {
             axios.get(`/collaborators/${this.collaboratorId}`).then(response => {
                 this.collaboratorName = response.data.name;
+                Object.assign(response.data, { // password field is hidden on laravel by default, the returned object will not contain password and the input (v-model="mainForm.password") will not link to anything
+                    'password': ''
+                })
                 this.mainForm = new Form(response.data)
             })
         }
@@ -386,6 +391,15 @@ export default {
             }).catch(error => {
                 console.log(error);
             })
+        }, 
+        deleteCollaborator() {
+            if(confirm('Are you sure you want to delete this collaborator?')) {
+                axios.delete(`/collaborators/${this.collaboratorId}`).then(() => {
+                    this.$router.replace({ name: 'collaborators' });
+                }).catch(error => {
+                    console.log(error.response);
+                })
+            }
         }
     }
 }
@@ -394,7 +408,7 @@ export default {
 <style lang="scss">
     .custom-grid-container {
         display: grid;
-        grid-template-columns: 275px 1fr;
+        grid-template-columns: 275px minmax(700px, 1fr);
     }
     .list-group {
         background-color: var(--dark);
@@ -425,14 +439,15 @@ export default {
             }
         }
     }
-    @media (min-width: 1200px) and (max-width: 1475px) {
-        #sidebar.active + .right .custom-grid-container {
-            grid-template-columns: 1fr;
-        }
-    }
-    @media (max-width: 991.98px) {
+    @media (max-width: 1455px) {
         .custom-grid-container {
             grid-template-columns: 1fr;
+            .list-group {
+                // max-width: 375px;
+                // margin-left: auto;
+                // margin-right: auto;
+                margin-bottom: .5em;
+            }
         }
     }
     .bg-dark a i {
