@@ -1,24 +1,34 @@
 <template>
-    <div>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
-            <a id="navbar-toggler" @click="sidebar.active = !sidebar.active" :class="{ 'opacity-1': sidebar.active }">
+    <div v-if="user">
+        <nav class="navbar navbar-expand navbar-light bg-white shadow-sm fixed-top px-4">
+            <a v-if="user.permissions.includes('view collaborators')" id="navbar-toggler" @click="sidebar.active = !sidebar.active" :class="{ 'opacity-1': sidebar.active }">
                 <i class="fas fa-align-left fa-2x"></i>
             </a>
+            <a v-else href="#" class="text-dark d-flex align-items-center">
+                <img src="@/assets/images/logo.svg" class="mr-2" width="50px" height="50px" alt="Satoripop logo">
+                <div>
+                    <h3 class="font-weight-bold m-0 line-height-100">satoripop</h3>
+                    <h6 class="font-weight-bold text-secondary m-0 line-height-100">shine clever</h6>
+                </div>
+            </a>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item clickable">
-                        <router-link :to="{ name: 'settings' }" class="nav-link"><i class="fas fa-cog"></i> Settings</router-link>
+                <ul class="navbar-nav ml-auto font-weight-bold">
+                    <li class="nav-item">
+                        <router-link v-if="user.role === 'Employee'" :to="{ name: 'profile', params: { id: user.id } }" class="nav-link clickable"><i class="fas fa-user"></i> Profile</router-link>
                     </li>
-                    <li class="nav-item clickable" @click="onLogout">
-                        <a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    <li class="nav-item">
+                        <router-link :to="{ name: 'settings' }" class="nav-link clickable"><i class="fas fa-cog"></i> Settings</router-link>
+                    </li>
+                    <li class="nav-item" @click="onLogout">
+                        <a class="nav-link clickable" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </li>
                 </ul>
             </div>
         </nav>
-        <div id="sidebar" class="bg-dark text-light mt-5" :class="{ 'active': sidebar.active }">
+        <div v-if="user.permissions.includes('view collaborators')" id="sidebar" class="bg-dark text-light mt-5" :class="{ 'active': sidebar.active }">
             <div class="sidebar-header d-flex flex-column align-items-center px-3 pt-5 pb-4">
-                <img src="@/assets/me.jpg" class="rect rounded-circle shadow mb-3" alt="Ala Baganné">
-                <h3 class="font-weight-light text-warning mb-0">{{ user.name }}</h3>
+                <img :src="'http://localhost:8000/' + user.image_path" class="rect rounded-circle shadow mb-3" alt="Ala Baganné">
+                <h3 class="font-weight-light text-warning mb-0">{{ user ? user.name : '' }}</h3>
                 <h5 class="text-capitalize">{{ user.role }}</h5>
             </div>
             <div class="sidebar-links">
@@ -74,6 +84,11 @@ export default {
                 this.$router.replace({ name: 'login' });
             });
         }
+    },
+    created() {
+        if(!this.user.permissions.includes('view collaborators') || window.innerWidth <= "768") {
+            this.sidebar.active = false;
+        }
     }
 }
 </script>
@@ -87,6 +102,7 @@ export default {
     z-index: 1;
 }
 nav {
+    z-index: 20;
     #navbar-toggler {
         opacity: .6;
         padding: .5em;
@@ -108,9 +124,9 @@ nav {
     width: 320px;
     left: -320px;
     height: 100%;
-    background-image: linear-gradient(rgba(4,4,4,.9) 0 100%), url('assets/2.jpg');
+    background-image: linear-gradient(rgba(4,4,4,.9) 0 100%), url('assets/images/2.jpg');
     background-size: cover;
-    z-index: +1;
+    z-index: 10;
     .sidebar-header {
         border-bottom: 1px solid rgba(255,255,255,.4);
         background-color: rgba(0,0,0,.4);

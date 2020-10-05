@@ -10,7 +10,7 @@ const routes = [
   {
     path: "/",
     redirect: {
-      name: "login",
+      name: "dashboard",
     },
     // name: "home",
     // component: Home,
@@ -19,10 +19,10 @@ const routes = [
     path: "/login",
     name: "login",
     beforeEnter: (to, from, next) => {
-      if (!store.getters["auth/isAuthenticated"]) {
-        next();
-      } else {
+      if (store.getters["auth/isAuthenticated"]) {
         next({ name: "dashboard" });
+      } else {
+        next();
       }
     },
     component: () => {  return import("../views/Login.vue") },
@@ -30,13 +30,13 @@ const routes = [
   {
     path: "/dashboard",
     component: () => { return import("../Layout.vue") },
-    beforeEnter: (to, from, next) => {
-      if (store.getters["auth/isAuthenticated"]) {
-        next();
-      } else {
-        next({ name: "login" });
-      }
-    },
+    // beforeEnter: (to, from, next) => {
+    //   if (store.getters["auth/isAuthenticated"]) {
+    //     next();
+    //   } else {
+    //     next({ name: "login" });
+    //   }
+    // },
     children: [
       {
         path: "",
@@ -82,5 +82,24 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
 });
+
+router.beforeEach((to, from, next) => {
+  let loggedIn = store.getters["auth/isAuthenticated"];
+  let user = store.getters["auth/user"];
+  if(to.name !== "login" && !loggedIn) {
+    next({ name: "login" });
+  } else if(user) {
+    let hasViewPermission = user.permissions.includes('view collaborators');
+    if(hasViewPermission || to.name === 'settings') next();
+    else if(to.name !== "profile" || to.params.id !== user.id) {
+      next({ name: "profile", params: { id: user.id } });
+    } else {
+      // https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards
+      next();
+    }
+  } else {
+    next();
+  }
+})
 
 export default router;

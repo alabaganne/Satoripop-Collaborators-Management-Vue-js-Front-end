@@ -12,31 +12,17 @@
             </button>
         </div>
         <!-- Modal -->
-        <div class="modal fade" :id="`add-${name}-modal`" style="padding-left: 17px;" tabindex="-1" role="dialog" :aria-labelledby="`Add new ${name}`" aria-hidden="true">
-            <form autocomplete="off" @keydown="form.errors.clear($event.target.name)">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content border-0 shadow-lg">
-                        <div class="modal-header bg-primary light-linear-gradient border-bottom-0">
-                            <h3 class="modal-title text-light text-shadow text-uppercase font-weight-bold">add new {{ name }}</h3>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="p-3">
-                                <slot name="modal-body"></slot>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <div class="ml-auto">
-                                <button type="button" class="btn rounded-sm btn-sm px-3 py-2 mr-1 btn-dark" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn rounded-sm btn-sm px-3 py-2 btn-primary" @click="validateThenAdd" :disabled="form.errors.any()">Add</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
+        <modal 
+            :name="name" 
+            role="add"
+            :form="form" 
+            :modalId="`add-${name}-modal`"
+            @submit-event="addPending" 
+        >
+            <template slot="modal-body-content">
+                <slot name="modal-body" />
+            </template>
+        </modal>
         <!-- /Modal -->
         <!-- Table -->
         <table class="table table-bordered">
@@ -45,19 +31,66 @@
                 <th>Actions</th>
             </thead>
             <tbody>
-                <template v-if="fetchedData.length > 0 || pendingData.length > 0"> <!-- Fetched Data -->
-                    <tr v-for="(row, rowIndex) in fetchedData" :key="row.id">
+                <!-- Fetched Data -->
+                <template v-if="fetchedData.length > 0 || pendingData.length > 0">
+                    <!-- Duplicated keys detected error solution: https://github.com/vuejs/vue/issues/7323 -->
+                    <tr v-for="(row, rowIndex) in fetchedData" :key="rowIndex + 'F'" :class="{ 'bg-light': row.edited }">
                         <td v-for="(field, fieldIndex) in fields" :key="fieldIndex">{{ row[field] }}</td>
                         <td>
-                            <button type="button" class="btn btn-sm btn-secondary mr-1">Edit</button>
-                            <button type="button" class="btn btn-sm btn-danger" @click="deleteFromFetched(fetchedData, rowIndex)">Delete</button>
+                            <!-- Edit Modal: Fetched -->
+                            <modal 
+                                :name="name" 
+                                role="edit"
+                                :form="form"
+                                :modalData="row" 
+                                :modalId="`${name}${rowIndex}F`"
+                                :ref="name + 'F'"
+                                @submit-event="editFetched(rowIndex)"
+                            >
+                            <!-- F: stands for "Fetched" -->
+                                <template slot="modal-body-content">
+                                    <slot name="modal-body" />
+                                </template>
+                            </modal>
+                            <!-- /Modal -->
+                            <button 
+                                type="button" 
+                                class="btn btn-sm btn-secondary mr-1"
+                                data-toggle="modal" 
+                                :data-target="`#${name}${rowIndex}F`" 
+                                @click="$refs[name + 'F'][rowIndex].loadData()"
+                            >Edit</button>
+                            <!-- stackoverflow refs inside v-for: https://stackoverflow.com/questions/52086128/vue-js-ref-inside-the-v-for-loop -->
+                            <button type="button" class="btn btn-sm btn-danger" @click="deleteFetchedRow(fetchedData, rowIndex)">Delete</button>
                         </td>
                     </tr>
-                    <tr class="bg-light" v-for="(row, rowIndex) in pendingData" :key="rowIndex"> <!-- Pending Data -->
+                    <!-- Pending Data -->
+                    <tr class="bg-light" v-for="(row, rowIndex) in pendingData" :key="rowIndex + 'P'">
                         <td v-for="(field, fieldIndex) in fields" :key="fieldIndex">{{ row[field] }}</td>
                         <td>
-                            <button type="button" class="btn btn-sm btn-secondary mr-1">Edit</button>
-                            <button type="button" class="btn btn-sm btn-danger" @click="deleteFromPending(pendingData, index)">Delete</button>
+                            <!-- Edit Modal: Pending -->
+                                <modal
+                                    :name="name" 
+                                    role="edit" 
+                                    :form="form" 
+                                    :modalData="row" 
+                                    :modalId="`${name}${rowIndex}P`" 
+                                    :ref="name + 'P'" 
+                                    @submit-event="editPending(rowIndex)" 
+                                >
+                                    <template slot="modal-body-content">
+                                        <slot name="modal-body" />
+                                    </template>
+                                </modal>
+                            <!-- /Modal -->
+                            <button 
+                                type="button" 
+                                class="btn btn-sm btn-secondary mr-1" 
+                                data-toggle="modal" 
+                                :data-target="`#${name}${rowIndex}P`" 
+                                @click="$refs[name + 'P'][rowIndex].loadData()" 
+                            >Edit</button>
+                            <button type="button" class="btn btn-sm btn-danger" @click="deletePendingRow(pendingData, rowIndex)">Delete</button>
                         </td>
                     </tr>
                 </template>
@@ -76,6 +109,9 @@ export default {
     props: {
         name: String,
         form: Object,
+    },
+    components: {
+        modal: () => { return import('@/components/Modal') }
     },
     data() {
         return {
@@ -100,42 +136,91 @@ export default {
         if(this.collaboratorId) {
             axios.get(`/collaborators/${this.collaboratorId}/${this.name}s`).then(response => {
                 this.fetchedData = response.data;
-            })
+                this.fetchedData.forEach(row => {
+                    row['edited'] = false;
+                })
+            });
         }
     },
     methods: {
-        validateThenAdd() {
-            this.form.post(`/validate/${this.name}`).then(() => {
+        validate() {
+            return new Promise((resolve) => {
+                this.form.post(`/validate/${this.name}`).then(() => {
+                    resolve();
+                }).catch(() => {});
+            })
+        },
+        submit(collaboratorId) {
+            // Create
+            this.pendingData.forEach(row => {
+                axios.post(`/collaborators/${collaboratorId}/${this.name}s`, row).catch(error => {
+                    console.error(error.response);
+                });
+            });
+            // Update
+            this.pendingUpdates.forEach(row => {
+                axios.put(`/collaborators/${this.collaboratorId}/${this.name}s/${row.id}`, row).catch(error => console.log(error));
+            });
+            // Delete
+            this.pendingDeletes.forEach(value => {
+                axios.delete(`/collaborators/${this.collaboratorId}/${this.name}s/${value}`).catch(error => console.log(error));
+            });
+        },
+        // Store newly created items in cache until user submit the user creation/updatte Form
+        addPending() {
+            this.validate().then(() => {
                 this.pendingData.push(this.form.data());
-                this.form.clear();
-            }).catch(error => {
-                if(error.status !== 422) {
-                    console.error(error);
+                this.clearForm();
+            });
+        },
+        // Edit items stored in the cache
+        editPending(index) {
+            this.validate().then(() => {
+                this.editInterfaceData(this.pendingData, index);
+            });
+        },
+        editFetched(index) {
+            this.validate().then(() => {
+                this.fetchedData[index].edited = true;
+                this.editInterfaceData(this.fetchedData, index);
+                let temp = {};
+                Object.assign(temp, this.fetchedData[index]);
+                delete temp.edited;
+
+                let duplicatedPendingUpdateIndex = this.checkIfDuplicated(this.pendingUpdates, temp); // prevent duplication
+                if(duplicatedPendingUpdateIndex !== null) {
+                    this.pendingUpdates[duplicatedPendingUpdateIndex] = temp;
+                } else {
+                    this.pendingUpdates.push(temp);
                 }
             });
         },
-        submit(collaboratorId) {
-            // send requests to add pendingData Array Data to the collaborator
-            for(let row in this.pendingData) {
-                axios.post(`/collaborators/${collaboratorId}/${this.name}s`, this.pendingData[row]).catch(error => {
-                    console.error(error.response);
-                });
-                // Send requests to update and delete data from table
-                // Delete
-                this.pendingDeletes.forEach(value => {
-                    axios.delete(`/collaborators/${this.collaboratorId}/${this.name}s/${value}`).catch(error => console.log(error));
-                });
-            }
+        clearForm() {
+            this.form.clear();
+            this.form.errors.clear();
         },
-        // editPending(table, index) {},
-        // editFetched(table, index) {},
-        deleteFromPending(table, index) { // table: pending data Array
+        checkIfDuplicated(table, element) {
+            let duplicationPosition = null;
+            table.forEach((tableElement, index) => {
+                if(tableElement.id === element.id) {
+                    duplicationPosition = index;
+                }
+            });
+            return duplicationPosition;
+        },
+        editInterfaceData(table, index) {
+            this.fields.forEach(key => {
+                table[index][key] = this.form.data()[key];
+            });
+        },
+        // Deleting
+        deletePendingRow(table, index) { // table: pending data Array
             table.splice(index, 1);
         },
-        deleteFromFetched(table, index) { // table: fetched data Array
+        deleteFetchedRow(table, index) { // table: fetched data Array
             this.pendingDeletes.push(table[index].id);
             table.splice(index, 1)
-        }
+        },
     },
 }
 </script>

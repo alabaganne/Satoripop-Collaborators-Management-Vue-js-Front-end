@@ -2,14 +2,17 @@
     <div class="bg-white shadow-sm rounded-lg overflow-hidden">
         <div class="bg-dark text-warning light-linear-gradient p-4 text-center">
             <h1 class="text-shadow mb-0">{{ collaborator.name }}</h1>
-            <router-link v-if="user.permissions.includes('edit collaborators')" class="text-light small" :to="{ name: 'edit collaborator' }">Edit this collaborator</router-link>
+            <div class="small">
+                <router-link v-if="user ? user.permissions.includes('edit collaborators') : false" class="text-light mr-3" :to="{ name: 'edit collaborator' }">Edit this collaborator</router-link>
+                <a v-if="user ? user.permissions.includes('delete collaborators') : false" class="text-light" href="#" @click="deleteCollaborator">Delete this collaborator</a>
+            </div>
         </div>
-        <div class="p-5">
+        <div class="pt-5 px-5 pb-3 pb-sm-4">
             <!-- content -->
-            <div class="row mb-4">
-                <div class="col-6">
-                    <div class="d-flex align-items-center mb-2">
-                        <img src="@/assets/me.jpg" class="rect rounded-circle shadow-sm mr-3" :alt="collaborator.name">
+            <div class="grid-container d-xl-flex justify-content-between mb-4">
+                <div class="grid">
+                    <div class="text-center d-sm-flex text-sm-left align-items-center mb-4">
+                        <img v-if="collaborator.image_path" :src="'http://localhost:8000/' + collaborator.image_path" class="rect rounded-circle shadow-sm mr-3 mb-3 mb-sm-0" :alt="collaborator.name">
                         <div>
                             <h1 class="text-primary font-weight-light mb-1">{{ collaborator.name }}</h1>
                             <h4 class="font-weight-light mb-1">{{ collaborator.department_name }} Department</h4>
@@ -17,7 +20,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 text-secondary text-right">
+                <div class="grid text-secondary text-right">
                     <div class="info">
                         <div class="mb-2" v-if="collaborator.id_card_number">
                             <span class="mr-3">{{ collaborator.id_card_number }}</span>
@@ -80,7 +83,6 @@
 <script>
 import axios from 'axios';
 import { mapGetters } from 'vuex';
-
 export default {
     components: {
         'data-table': () => { return import('@/components/collaborator/ShowDataTable') },
@@ -88,7 +90,6 @@ export default {
     data() {
         return {
             collaborator: {},
-            profileImageHeight: 0,
             leaves: [],
             skills: [],
             trainings: [],
@@ -101,7 +102,7 @@ export default {
         })
     },
     mounted() {
-        let collaboratorId = this.$route.params.id
+        let collaboratorId = this.$route.params.id;
         axios.get(`/collaborators/${collaboratorId}`).then(response => {
             this.collaborator = response.data;
             this.getTableData('leaves');
@@ -120,6 +121,15 @@ export default {
                 console.log(error);
             });
         },
+        deleteCollaborator() {
+            if(confirm('Are you sure you want to delete this collaborator?')) {
+                axios.delete(`/collaborators/${this.collaborator.id}`).then(() => {
+                    this.$router.replace({ name: 'collaborators' });
+                }).catch(error => {
+                    console.log(error.response);
+                })
+            }
+        }
     }
 }
 </script>

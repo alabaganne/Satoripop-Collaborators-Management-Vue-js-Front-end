@@ -1,23 +1,28 @@
 <template>
-    <div class="modal fade" :id="id" style="padding-left: 17px;" tabindex="-1" role="dialog" :aria-labelledby="`Edit ${name}`" aria-hidden="true">
+    <div class="modal fade" :id="modalId" style="padding-left: 17px;" tabindex="-1" role="dialog" aria-hidden="true">
         <form autocomplete="off" @keydown="form.errors.clear($event.target.name)">
+        <!-- <form autocomplete="off"> -->
             <div class="modal-dialog" role="document">
                 <div class="modal-content border-0 shadow-lg">
                     <div class="modal-header bg-primary light-linear-gradient border-bottom-0">
-                        <h3 class="modal-title text-light text-shadow text-uppercase font-weight-bold">Edit {{ name }}</h3>
+                        <h3 class="modal-title text-light text-shadow font-weight-bold">{{ role === 'edit' ? 'Edit' : 'Add new' }} {{ name }}</h3>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                        <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="p-3">
-                            <slot name="modal-body"></slot>
-                        </div>
+                        <slot name="modal-body-content" />
                     </div>
                     <div class="modal-footer">
                         <div class="ml-auto">
-                            <button type="button" class="btn rounded-sm btn-sm px-3 py-2 mr-1 btn-dark" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn rounded-sm btn-sm px-3 py-2 btn-primary" :disabled="form.errors.any()">Update</button>
+                            <button type="button" class="btn rounded-sm btn-sm px-3 py-2 mr-1 btn-dark" data-dismiss="modal" @click="form.clear(); form.errors.clear()">Close</button>
+                            <!-- <button type="button" class="btn rounded-sm btn-sm px-3 py-2 btn-primary">Add</button> -->
+                            <button 
+                                type="button" 
+                                class="btn rounded-sm btn-sm px-3 py-2 btn-primary" 
+                                @click="onSave" 
+                                :disabled="form.errors.any()"
+                            >{{ role === 'edit' ? 'Edit' : 'Add' }}</button>
                         </div>
                     </div>
                 </div>
@@ -29,12 +34,23 @@
 <script>
 export default {
     props: {
-        id: String,
+        modalId: String,
+        role: String,
         name: String,
-        table: Array,
-        tableRowIndex: Number,
         form: Object,
-    }
+        modalData: Object,
+    },
+    methods: {
+        loadData() {
+            Object.keys(this.modalData).forEach(key => {
+                this.form[key] = this.modalData[key];
+            })
+        },
+        onSave() {
+            this.edited = true;
+            this.$emit('submit-event'); 
+        }
+    },
 }
 </script>
 

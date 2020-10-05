@@ -19,7 +19,10 @@
             <tr v-else>
                 <th :colspan="fields.length + 1" class="text-center text-danger">
                     <template v-if="name === 'collaborator'">There's no archived collaborators.</template>
-                    <template v-else>This collaborator has no {{ name }}s.</template>
+                    <template v-else>
+                        <template v-if="user.id !== $route.params.id">This collaborator has no {{ name }}s.</template>
+                        <template v-else>You have no {{ name }}s.</template>
+                    </template>
                 </th>
             </tr>
         </tbody>
@@ -28,12 +31,17 @@
 
 <script>
 import axios from 'axios';
-
+import { mapGetters } from 'vuex'
 export default {
     props: {
         name: String,
         fields: Array,
         dataTable: Array,
+    },
+    computed: {
+        ...mapGetters({
+            user: "auth/user"
+        })
     },
     methods: {
         restore(index) {
@@ -51,7 +59,3 @@ export default {
     }
 }
 </script>
-
-<style>
-
-</style>

@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="bg-white shadow-sm rounded-lg w-100 p-4">
-            <div class="d-md-flex mb-2 small text-secondary">
+            <div class="d-md-flex mb-3 small text-secondary">
                 <router-link :to="{ name: 'add collaborator' }" class="btn clickable mr-auto font-weight-bold">
                     <i class="fas fa-plus fa-sm mr-2 text-primary"></i>Add new collaborator
                 </router-link>
@@ -28,7 +28,7 @@
                         class="h-100"
                         :name="collaborator.name"
                         :department="collaborator.department_name"
-                        :photoSrc="'me.jpg'"
+                        :imagePath="collaborator.image_path"
                     />
                 </router-link>
             </div>
@@ -75,7 +75,6 @@ export default {
             this.fetchCollaborators(8, this.currentPage, this.searchInput).then(response => {
                 this.collaborators = response.data.data;
                 this.lastPage = response.data.meta.last_page;
-                console.log(response);
             });
         },
         previousPage() {

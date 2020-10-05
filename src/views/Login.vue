@@ -83,18 +83,14 @@ export default {
     }),
     submit() {
       this.invalidCredentialsError = false;
-      this.form
-        .post("/auth/login")
-        .then((data) => {
-          this.attempt(data.access_token)
-            .then(() => {
-              this.$router.replace({
-                name: "dashboard",
-              });
-            })
-            .catch((error) => {
-              console.log(error);
-            });
+      this.form.post("/auth/login").then(response => {
+        this.attempt(response.data.access_token).then(response => {
+            let user = response.data.data;
+            if(user.permissions.includes('view collaborators')) this.$router.replace({ name: "dashboard" });
+            else this.$router.replace({ name: "profile", params: { id: user.id } });
+          }).catch((error) => {
+            console.log(error);
+          });
         })
         .catch((error) => {
           if (error.status === 401) {
@@ -111,7 +107,7 @@ export default {
 <style>
 .left {
   background-image: linear-gradient(rgba(0, 0, 0, 0.9) 0 100%),
-    url("../assets/1.jpg");
+    url("../assets/images/1.jpg");
   background-position: center;
   background-size: cover;
 }

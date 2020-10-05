@@ -10,6 +10,7 @@ $theme_colors: (
 // Text & Fonts
 body {
   font-family: "Comfortaa", cursive;
+  // font-size: 11pt;
 }
 a {
   text-decoration: none !important;
@@ -49,6 +50,14 @@ a {
   display: grid;
   .grid {
     padding: .5em;
+  }
+}
+@media (max-width: 650px) {
+  .grid-container, .grid-container-sm {
+    grid-template-columns: 1fr !important;
+  }
+  .display-4 {
+    font-size: 2.5em;
   }
 }
 // end
@@ -117,12 +126,29 @@ a.text-white-75:hover, a.text-white-75.active {
   opacity: 0;
 }
 .clickable:hover, .dropdown-item:hover {
-  transform: translateX(5px);
+  transform: translateX(4px);
+}
+nav li a.clickable {
+  color: var(--secondary) !important;
+  &.router-link-active, &:hover {
+    color: var(--dark) !important;
+  }
+  &.router-link-active {
+    transform: translate(0) !important;
+  }
 }
 // end
 // Table
 .table-bordered thead th, .table-bordered thead td {
   border-bottom-width: 1px;
+}
+table {
+  font-size: 11pt;
+}
+@media (max-width: 1199.98px) {
+  table {
+    font-size: 10pt;
+  }
 }
 // end
 .clickable,
@@ -161,4 +187,7 @@ a.text-white-75:hover, a.text-white-75.active {
 
 .opacity-1 {
   opacity: 1 !important;
+}
+.line-height-100 {
+  line-height: 1;
 }

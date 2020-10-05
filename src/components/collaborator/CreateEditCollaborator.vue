@@ -37,6 +37,10 @@
                         <input class="form-control" type="password" name="password" id="password" v-model="mainForm.password" :class="{ 'is-invalid': mainForm.errors.has('password') }">
                         <small class="text-danger" v-if="mainForm.errors.has('password')" v-text="mainForm.errors.get('password')"></small>
                     </div>
+                    <div class="grid">
+                        <label for="image">{{ role === 'create' ? 'Set' : 'Change'}} profile image</label>
+                        <input type="file" name="profileImage" class="form-control-file mt-1" id="image" @change="onImageChange">
+                    </div>
                 </div>
                 <div class="custom-grid-container">
                     <div class="grid p-2">
@@ -281,8 +285,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="d-flex justify-content-center mt-5">
-                    <button type="submit" class="btn btn-sm btn-success px-4 py-3 rounded-pill" :class="{ 'mr-1': role === 'edit' }">{{ role === 'edit' ? 'Update' : 'Save' }} Collaborator</button>
+                <div class="d-sm-flex text-center justify-content-center mt-4">
+                    <button type="submit" class="btn btn-sm btn-success px-4 py-3 rounded-pill mb-1 mb-sm-0" :class="{ 'mr-1': role === 'edit' }">{{ role === 'edit' ? 'Update' : 'Save' }} Collaborator</button>
                     <button v-if="role === 'edit'" type="button" class="btn btn-sm btn-danger px-4 py-3 rounded-pill" @click="deleteCollaborator">Delete Collaborator</button>
                 </div>
             </form>
@@ -331,7 +335,7 @@ export default {
                 name: null,
                 username: null,
                 email: null,
-                password: '',
+                password: null,
                 phone_number: null,
                 date_of_birth: null,
                 address: null,
@@ -351,7 +355,9 @@ export default {
                 allowed_leave_days: 30, // default to 30
                 department_id: null
             }),
-            collaboratorName: null
+            profileImage: null, // profile image
+
+            collaboratorName: null,
         }
     },
     computed: {
@@ -364,14 +370,15 @@ export default {
         axios.get('/departments').then(response => {
             this.departments = response.data;
         });
+        // editing case
         if(this.collaboratorId) {
             axios.get(`/collaborators/${this.collaboratorId}`).then(response => {
                 this.collaboratorName = response.data.name;
                 Object.assign(response.data, { // password field is hidden on laravel by default, the returned object will not contain password and the input (v-model="mainForm.password") will not link to anything
                     'password': ''
-                })
-                this.mainForm = new Form(response.data)
-            })
+                });
+                this.mainForm = new Form(response.data);
+            });
         }
     },
     methods: {
@@ -381,17 +388,23 @@ export default {
             this.mainForm.submit(requestType, url).then(response => {
                 let collaborator_id = this.collaboratorId || response.collaborator_id;
                 let sectionsRefs = ['leavesSection', 'skillsSection', 'trainingsSection', 'evaluationsSection'];
+                
+                sectionsRefs.forEach(sectionRef => {
+                    this.$refs[sectionRef].submit(collaborator_id);
+                })
 
-                for(let key in sectionsRefs) {
-                    this.$refs[sectionsRefs[key]].submit(collaborator_id);
+                if(this.profileImage !== null) {
+                    let temp = new FormData(); // temporary variable to handle profile image submission
+                    temp.append('profile_image', this.profileImage);
+                    axios.post(`/users/${collaborator_id}/profile-image`, temp).then(response => {
+                        console.log(response);
+                    }).catch(error => console.log(error.response));
                 }
             }).then(() => {
                 let redirectTo = this.collaboratorId ? { name: 'profile', params: { name: this.collaboratorId } } : { name: 'collaborators' }
                 this.$router.replace(redirectTo);
-            }).catch(error => {
-                console.log(error);
-            })
-        }, 
+            }).catch();
+        },
         deleteCollaborator() {
             if(confirm('Are you sure you want to delete this collaborator?')) {
                 axios.delete(`/collaborators/${this.collaboratorId}`).then(() => {
@@ -400,6 +413,10 @@ export default {
                     console.log(error.response);
                 })
             }
+        },
+        onImageChange(event) {
+            console.log(event);
+            this.profileImage = event.target.files[0];
         }
     }
 }

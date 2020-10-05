@@ -9,7 +9,7 @@ export default {
 
   getters: {
     isAuthenticated(state) {
-      return state.token !== null; // returns true if the user is logged in
+      return state.token !== null; // returns true if a user is logged in
     },
     user(state) {
       return state.user;
@@ -20,12 +20,12 @@ export default {
     SET_TOKEN(state, token) {
       state.token = token;
     },
-    SET_USER(state, response) {
-      if(!response) {
+    SET_USER(state, user) {
+      if(!user) {
         state.user = null
         return;
       }
-      state.user = response.data;
+      state.user = user;
     },
   },
 
@@ -40,14 +40,12 @@ export default {
             headers: {
               Authorization: "Bearer " + token,
             },
-          })
-          .then((response) => {
+          }).then(response => {
             commit("SET_TOKEN", token);
-            commit("SET_USER", response.data);
             axios.defaults.headers["Authorization"] = `Bearer ${token}`;
+            commit("SET_USER", response.data.data);
             resolve(response);
-          })
-          .catch((error) => {
+          }).catch(error => {
             if (error.response.status === 401) {
               commit("SET_TOKEN", null);
               localStorage.removeItem("token");
@@ -59,10 +57,15 @@ export default {
 
     logout({ commit, state }) {
       if(state.token) {
-        return axios.post("/auth/logout").then(() => {
-          commit("SET_TOKEN", null);
-          commit("SET_USER", null);
-        });
+        return new Promise(resolve => {
+          axios.post("/auth/logout").then(() => {
+            commit("SET_TOKEN", null);
+            commit("SET_USER", null);
+            resolve();
+          }).catch(error => {
+            console.log(error);
+          });
+        })
       }
     },
 

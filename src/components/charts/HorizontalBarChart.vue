@@ -4,15 +4,14 @@
     export default {
         extends: HorizontalBar,
         props: {
-            labels: Array,
-            chartData: Array,
-            title: String
+            title: String,
+            chartData: Object
         },
         mounted () {
             this.renderChart({
-                labels: this.labels,
+                labels: Object.keys(this.chartData),
                 datasets: [{
-                    data: [...this.chartData, 0],
+                    data: [...Object.values(this.chartData), 0],
                     backgroundColor: [
                         'rgba(255, 99, 132, 1)',
                         'rgba(54, 162, 235, 1)',

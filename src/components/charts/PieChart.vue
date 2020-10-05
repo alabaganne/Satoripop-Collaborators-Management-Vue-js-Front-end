@@ -27,7 +27,7 @@
                     borderWidth: 0,
                 }],
             }, 
-            { // ! options
+            { // options
                 legend: {
                     position: 'right'
                 },
