@@ -19,10 +19,5 @@ export default {
                 })
             })
         },
-        deleteCollaborator() {
-            if(confirm('Are you sure you want to delete this collaborator?')) {
-                return axios.delete(`/collaborators/${this.collaboratorId}`);
-            }
-        }
     }
 }

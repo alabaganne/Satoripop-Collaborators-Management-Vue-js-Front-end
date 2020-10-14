@@ -147,7 +147,7 @@ export default {
             return new Promise((resolve) => {
                 this.form.post(`/validate/${this.name}`).then(() => {
                     resolve();
-                }).catch(() => {});
+                }).catch(error => console.log(error));
             })
         },
         submit(collaboratorId) {
