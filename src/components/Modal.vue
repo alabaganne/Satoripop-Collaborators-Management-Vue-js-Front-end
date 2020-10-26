@@ -44,12 +44,12 @@ export default {
         loadData() {
             Object.keys(this.modalData).forEach(key => {
                 this.form[key] = this.modalData[key];
-            })
+            });
         },
         onSave() {
             this.edited = true;
             this.$emit('submit-event'); 
-        }
+        },
     },
 }
 </script>

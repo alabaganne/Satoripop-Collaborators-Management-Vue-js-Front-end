@@ -43,7 +43,7 @@
                                 role="edit"
                                 :form="form"
                                 :modalData="row" 
-                                :modalId="`${name}${rowIndex}F`"
+                                :modalId="name + rowIndex + 'F'"
                                 :ref="name + 'F'"
                                 @submit-event="editFetched(rowIndex)"
                             >
@@ -57,7 +57,7 @@
                                 type="button" 
                                 class="btn btn-sm btn-secondary mr-1"
                                 data-toggle="modal" 
-                                :data-target="`#${name}${rowIndex}F`" 
+                                :data-target="'#' + name + rowIndex + 'F'" 
                                 @click="$refs[name + 'F'][rowIndex].loadData()"
                             >Edit</button>
                             <!-- stackoverflow refs inside v-for: https://stackoverflow.com/questions/52086128/vue-js-ref-inside-the-v-for-loop -->
@@ -69,25 +69,25 @@
                         <td v-for="(field, fieldIndex) in fields" :key="fieldIndex">{{ row[field] }}</td>
                         <td>
                             <!-- Edit Modal: Pending -->
-                                <modal
-                                    :name="name" 
-                                    role="edit" 
-                                    :form="form" 
-                                    :modalData="row" 
-                                    :modalId="`${name}${rowIndex}P`" 
-                                    :ref="name + 'P'" 
-                                    @submit-event="editPending(rowIndex)" 
-                                >
-                                    <template slot="modal-body-content">
-                                        <slot name="modal-body" />
-                                    </template>
-                                </modal>
+                            <modal
+                                :name="name" 
+                                role="edit" 
+                                :form="form" 
+                                :modalData="row" 
+                                :modalId="`${name}${rowIndex}P`" 
+                                :ref="name + 'P'" 
+                                @submit-event="editPending(rowIndex)" 
+                            >
+                                <template slot="modal-body-content">
+                                    <slot name="modal-body" />
+                                </template>
+                            </modal>
                             <!-- /Modal -->
                             <button 
                                 type="button" 
                                 class="btn btn-sm btn-secondary mr-1" 
                                 data-toggle="modal" 
-                                :data-target="`#${name}${rowIndex}P`" 
+                                :data-target="`#${name + rowIndex}P`" 
                                 @click="$refs[name + 'P'][rowIndex].loadData()" 
                             >Edit</button>
                             <button type="button" class="btn btn-sm btn-danger" @click="deletePendingRow(pendingData, rowIndex)">Delete</button>
@@ -119,7 +119,7 @@ export default {
             pendingData: [],
             pendingUpdates: [],
             pendingDeletes: [], // contains the id of the elements that will be deleted
-            collaboratorId: null
+            collaboratorId: null,
         }
     },
     computed: {
@@ -145,9 +145,25 @@ export default {
     methods: {
         validate() {
             return new Promise((resolve) => {
-                this.form.post(`/validate/${this.name}`).then(() => {
-                    resolve();
-                }).catch(error => console.log(error));
+                let skillExists = false;
+                if(this.name == 'skill') {
+                    let arraysData = this.fetchedData.concat(this.pendingData);
+                    arraysData.forEach(el => {
+                        if(this.form.name == el.name && (this.form.id === undefined || this.form.id !== el.id)) {
+                            this.form.errors.record({
+                                name: [
+                                    "This collaborator already have that skill."
+                                ]
+                            })
+                            skillExists = true;
+                        }
+                    })
+                }
+                if(!skillExists) {
+                    this.form.post(`/validate/${this.name}`).then(() => {
+                        resolve();
+                    }).catch(error => console.log(error));
+                }
             })
         },
         submit(collaboratorId) {
@@ -175,9 +191,7 @@ export default {
         },
         // Edit items stored in the cache
         editPending(index) {
-            this.validate().then(() => {
-                this.editInterfaceData(this.pendingData, index);
-            });
+            this.validate().then(() => { this.editInterfaceData(this.pendingData, index); });
         },
         editFetched(index) {
             this.validate().then(() => {
@@ -187,19 +201,17 @@ export default {
                 Object.assign(temp, this.fetchedData[index]);
                 delete temp.edited;
 
-                let duplicatedPendingUpdateIndex = this.checkIfDuplicated(this.pendingUpdates, temp); // prevent duplication
-                if(duplicatedPendingUpdateIndex !== null) {
-                    this.pendingUpdates[duplicatedPendingUpdateIndex] = temp;
-                } else {
-                    this.pendingUpdates.push(temp);
-                }
+                let duplicatedPendingUpdateIndex = this.checkForDuplicates(this.pendingUpdates, temp); // prevent duplication
+
+                if(duplicatedPendingUpdateIndex !== null) this.pendingUpdates[duplicatedPendingUpdateIndex] = temp;
+                else this.pendingUpdates.push(temp);
             });
         },
         clearForm() {
             this.form.clear();
             this.form.errors.clear();
         },
-        checkIfDuplicated(table, element) {
+        checkForDuplicates(table, element) {
             let duplicationPosition = null;
             table.forEach((tableElement, index) => {
                 if(tableElement.id === element.id) {
@@ -220,7 +232,7 @@ export default {
         deleteFetchedRow(table, index) { // table: fetched data Array
             this.pendingDeletes.push(table[index].id);
             table.splice(index, 1)
-        },
+        }
     },
 }
 </script>
